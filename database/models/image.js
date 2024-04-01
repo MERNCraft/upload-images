@@ -9,7 +9,7 @@ const schema = new Schema({
   user: String,
   set: String,
   name: String,
-  path: String,
+  src: String,
   mimetype: String
 });
 

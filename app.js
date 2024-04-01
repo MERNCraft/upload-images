@@ -1,17 +1,16 @@
 /**
  * app.js
- * 
- * https://waystoweb.com/upload-image-multer-express-mongoose
  */
 
-
 require('dotenv').config()
+require('./database')
+const { PUBLIC } = require('./middleware')
 const express = require('express')
 
 const PORT = process.env.PORT || 3000
 
 const app = express()
-app.use(express.static('public'));
+app.use(express.static(PUBLIC));
 
 require('./routes')(app)
 
@@ -22,7 +21,6 @@ app.get('/ping', (req, res) => {
 ${Date()}</pre>`)
 })
 
-// Start the server
 app.listen(PORT, logHostsToConsole)
 
 function logHostsToConsole() {

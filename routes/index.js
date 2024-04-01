@@ -3,13 +3,12 @@
  */
 
 
-const { uploader, findImages } = require('../controllers')
-const { upload } = require('../middleware')
+const { uploader } = require('../controllers')
+const { readFields } = require('../middleware')
 
 
 const routes = (app) => {
-  app.get("/xxx", findImages)
-  app.post("/", upload.single("image"), uploader)
+  app.post("/", readFields, uploader)
 }
 
 
