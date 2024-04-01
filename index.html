@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Uploading Images</title>
+
+  <link rel="stylesheet" href="tutorial/styles.css">
+  <link rel="stylesheet" href="tutorial/media-queries.css">
+  <link rel="stylesheet" href="tutorial/prism/prism.css">
+
+  <script defer src="tutorial/prism/prism.js"></script>
+  <script defer src="tutorial/storage.js"></script>
+  <script defer src="tutorial/script.js"></script>
+</head>
+
+<body>
+<main id="main">
+<header>
+<h1>Uploading Images to a Server</h1>
+<h3>user NodeJS, Express, Multer and Mongoose</h3>
+<small>April 2024</small>
+</header>
+
+ <!-- _sec -->
+<section
+  id="target-id"
+  data-item="Menu Item"
+>
+  <h2>Section Header</h2>
+  <p>Content</p>
+</section>
+
+<section
+  id="conclusion"
+  data-item="Conclusion"
+>
+  <h2>Conclusion</h2>
+  <p>Content</p>
+  <hr>
+  <div class="repo">
+    <a href="https://github.com/MERNCraft/tutorialX">
+      <img src="tutorial/images/github.svg" alt="github logo">
+      <span>GitHub repository</span>
+    </a>
+  </div>
+  <aside class="tip center feedback-small">
+    <p>If you had any difficulties with this tutorial, or any suggestions on how to improve it, please <a href="https://github.com/MERNCraft/tutorialX/issues/new">submit&nbsp;an&nbsp;issue&nbsp;on&nbsp;GitHub</a>.</p>
+  </aside>
+  <aside class="tip center feedback-wide">
+    <p>If you had any difficulties with this tutorial,<br>or any suggestions on how to improve it,<br>please <a href="https://github.com/MERNCraft/tutorialX/issues/new">submit an issue on GitHub</a>.</p>
+  </aside>
+</section>
+
+<section id="intro">
+<h2>Introduction</h2>
+<p>A friend of mine who works in an art museum asked me to create a web game for their annual Night at the Museum. The game uses images of the art works on display. Different parts of the game use images from different rooms in the gallery.</p>
+<p>One requirement is to allow the staff at the museum to upload images to a server and store them in different folders, one folder per room.The staff will be choosing and naming the images, so I need to store details about them in a database. As the game progresses, the web page in the players' browsers will query the database to request the URLs for specific images.</p>
+<p>I started by creating the game itself, using placeholder images in folders with hard-coded names. The frontend, written in React is working well. Now I need to create a backend with two goals:</p>
+<ul>
+  <li>The museum staff must be able to upload batches of images to specific folders</li>
+  <li>For each image uploaded, the server should save its details in a database</li>
+  <li>The frontend must be able to query the database for the names of the folders and the URLs of all the images in a given folder</li>
+  <li>The frontend must be able to download the images as they are needed for the game.</li>
+</ul>
+<h4>Building in a Modular Fashion</h4>
+<p>When I add a new feature to a project that is already complex, I like to start by building the feature as a standalone module. After I am sure that everything is working smoothly, I can integrate the new module into the main project. My main project already contains a <i>stub</i> which load images from hard-coded URLs asynchronously. I simply need to edit this stub so that it makes requests from the database instead.</p>
+<p>In this tutorial, I will be showing you how to build this  module: a backend which provides the features that I have just described. Specifically, you will learn how to:</p>
+<ol>
+  <li><a href="#">Create an Express server to listen for POST requests from a web page</a></li>
+  <li><a href="#">Create an HTML form to choose files to upload, along with text fields containing meta data</a></li>
+  <li><a href="#">Use JavaScript to POST the form to the server</a></li>
+  <li><a href="#">Use the Multer Node module to read the meta data and save the files in a publicly accessible directory</a></li>
+  <li><a href="#">Move files from one location on the server to another</a></li>
+  <li><a href="#">Deal with file names with non-Roman characters, like 画像</a></li>
+  <li><a href="#">Store the URL of each image and its meta data in a MongoDB database, using Mongoose</a></li>
+  <li><a href="#">Create a form to query the database</a></li>
+  <li><a href="#">Download all the images that correspond to a given database query</a></li>
+</ol>
+<p>Along the way, you will also see how to:</p>
+<ul>
+  <li>Troubleshoot unexpected issues</li>
+  <li>Organize your files in a meaningful folder structure</li>
+  <li>Use code snippets and other shortcuts to work more efficiently</li>
+</ul>
+<h4>Prerequisites</h4>
+<p>Before you start you should already have:</p>
+<ul>
+  <li><a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm" class="external">Downloaded and installed Node.js and NPM<span></span></a></li>
+  <li><a href="https://www.mongodb.com/docs/atlas/getting-started/" class="external">Set up a MongoDB database<span></span></a></li>
+  <li>Installed <a href="https://code.visualstudio.com/download" class="external">Microsoft's Virtual Studio Code<span></span></a>, or another script editor of your choice.</li>
+</ul>
+<p>You should be familiar with:</p>
+<ul>
+  <li>Basic bash commands in a Terminal window</li>
+  <li>The most common <code>npm</code> commands</li>
+  <li>HTML <a href="https://developer.mozilla.org/en-US/docs/Learn/Forms/Sending_forms_through_JavaScript" class="external">forms<span></span></a></li>
+  <li>Using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="external">Promises<span></span></a> and the <a href="-" class="external"><code>async/await</code><span></span></a> syntax</li>
+  <li>The <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" class="external"><code>fetch API</code><span></span></a>, which allows a browser to retrieve data from a server.</li>
+</ul>
+<div class="repo">
+  <a href="https://github.com/MERNCraft/tutorialX">
+    <img src="tutorial/images/github.svg" alt="github logo">
+    <span>GitHub repository</span>
+  </a>
+</div>
+<aside class="tip center feedback-small">
+  <p>If you have any difficulties with this tutorial, or any suggestions on how to improve it, please <a href="https://github.com/MERNCraft/tutorialX/issues/new">submit&nbsp;an&nbsp;issue&nbsp;on&nbsp;GitHub</a>.</p>
+</aside>
+<aside class="tip center feedback-wide">
+  <p>If you have any difficulties with this tutorial,<br>or any suggestions on how to improve it,<br>please <a href="https://github.com/MERNCraft/tutorialX/issues/new">submit an issue on GitHub</a>.</p>
+</aside>
+<hr>
+<aside class="warn">
+  <p>In this tutorial, you <strong>won't</strong> be learning:</p>
+
+  <ul>
+    <li>How to build the game itself</li>
+    <li>How to deploy your server to a hosting service*</li>
+    <li>How to <a href="https://github.com/MERNCraft/CORS-backend/blob/main/README.md">use CORS to connect to the backend from a different frontend host</a></li>
+  </ul>
+
+  <p>* This topic will be covered in a future tutorial.</p>
+</aside>
+
+<aside class="vscode">
+  <h4>Development Environment</h4>
+
+  <p>I work on MacOS Sonoma, using <a href="https://code.visualstudio.com/" class="external">Microsoft's Visual Studio Code<span></span></a> as my code editor and <a href="https://www.mozilla.org/en-US/firefox/new/" class="external">Mozilla Firefox<span></span></a> as my default browser. If you are working on a different operating system, using a different IDE or browser, the screenshots may not match exactly what you see.</p>
+  <p>Any suggestions specific to VS Code will be shown in a field with a dark blue background like this.</p>
+</aside>
+</section>
+
+<div class="spacer"></div>
+<footer id="footer">
+  <button id="previous" disabled>&lt;</button>
+  <span id="previous-name"></span>
+  <span class="spacer"></span>
+  <button id="next">&gt;</button>
+  <span id="next-name"></span>
+</footer>
+</main>
+
+<nav
+  id="menu"
+  class="open"
+>
+  <svg
+    id="menu-icon"
+    viewBox="0 0 100 100"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <g
+      class="menu"
+      stroke-width="20"
+      stroke-linecap="round"
+    >
+      <path
+        d="M5,20 L5,80 H95 L95,20 z"
+        fill="#0000"
+        stroke="none"
+      />
+      <line
+        x1="15"
+        y1="20"
+        x2="85"
+        y2="20"
+      />
+      <line
+        x1="15"
+        y1="50"
+        x2="85"
+        y2="50"
+      />
+      <line
+        x1="15"
+        y1="80"
+        x2="85"
+        y2="80"
+      />
+    </g>
+  </svg>
+
+  <ul id="menu-items">
+    <li class="spacer"></li>
+    <a class="feedback" href="https://github.com/MERNCraft/tutorialX/issues/new">Feedback</a>
+    <li class="repo">
+      <a
+        class="feedback"
+        href="https://github.com/MERNCraft/tutorialX"
+      >
+        <img src="tutorial/images/github.svg" alt="github logo">
+        <span>GitHub repository</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+</body>
+</html>

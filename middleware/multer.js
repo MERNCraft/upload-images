@@ -18,7 +18,7 @@
  */
 
 const multer = require('multer')
-const { absolutePath, TEMP } = requQire('./directory')
+const { absolutePath, TEMP } = require('./directory')
 
 
 // Reduce the 13-digit number value of Date.now(), such as
