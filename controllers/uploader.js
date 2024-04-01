@@ -16,7 +16,7 @@ const {
 
 exports.uploader = (req, res) => {
   const { files, body } = req
-  const { user, set } = body
+  const { user, room } = body
   const { images } = files
   if (!images) {
     const fail = "No images uploaded"
@@ -36,11 +36,11 @@ exports.uploader = (req, res) => {
     // with no extension
     const name = parse(originalname).name
     // Get destination directory relative to PUBLIC dir
-    const folder = join(UPLOAD, set)
+    const folder = join(UPLOAD, room)
     // Get image URL that a browser can use
     const src = join(folder, fileName)
     // Ensure that the destination directory exists
-    const fullPath = absolutePath(set)
+    const fullPath = absolutePath(room)
 
     // const from = `${ROOT}/${path}`
     const to = `${fullPath}/${fileName}`
@@ -62,7 +62,7 @@ exports.uploader = (req, res) => {
 
       const image = {
         user,
-        set,
+        room,
         src,
         name,
         mimetype

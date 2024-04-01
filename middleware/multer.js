@@ -65,14 +65,14 @@ function filename(req, file, callback) {
 function destination (req, file, cb) {
   // Define where a given file is to be saved
   const { body } = req
-  const { set: directoryName } = body
+  const { room: directoryName } = body
   if (directoryName) {
     // Save file immediately in its final resting place
     const path = absolutePath(directoryName)
     cb(null, path)
 
   } else {
-    // Save it to a temporary location, until "set" is available
+    // Save it to a temporary location, until "room" is available
     cb(null, TEMP );
   }
 }
@@ -89,10 +89,10 @@ const upload = multer({ storage });
 
 // The HTML form sends the following fields. The `images` field
 // will contain file data that will be saved to req.files. The
-// 'user' and 'set' fields will be added to req.body.
+// 'user' and 'room' fields will be added to req.body.
 const fields = [
   { name: 'user', maxCount: 1 },
-  { name: 'set', maxCount: 1 },
+  { name: 'room', maxCount: 1 },
   { name: 'images' }
 ]
 const readFields = upload.fields(fields)
