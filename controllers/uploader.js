@@ -38,7 +38,7 @@ exports.uploader = (req, res) => {
     // Get destination directory relative to PUBLIC dir
     const folder = join(UPLOAD, room)
     // Get image URL that a browser can use
-    const src = join(folder, fileName)
+    const src = "/" + join(folder, fileName)
     // Ensure that the destination directory exists
     const fullPath = absolutePath(room)
 

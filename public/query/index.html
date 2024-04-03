@@ -48,12 +48,15 @@
         width: 128px;
         height: 128px;
       }
+      div {
+        display: flex;
+      }
     </style>
   </head>
 <body>
   <h1>Search by:</h1>
   <form
-    action="/select"
+    action="/query"
     method="post"
   >
     <label for="user">
@@ -88,6 +91,7 @@
     >
       <button
         type="submit"
+        disabled
       >
         Show Images
       </button>
@@ -100,6 +104,33 @@
 ;(function () {
 "use strict"
 const form = document.getElementsByTagName("form")[0]
+const button = document.getElementsByTagName("button")[0]
+const div = document.getElementsByTagName("div")[0]
+let query = {}
+
+form.addEventListener("keyup", checkForInput)
+
+function checkForInput() {
+  // Disable submit button unless at least one field has a value
+  const formData = new FormData(form)
+
+  query = Object.fromEntries(formData)
+  // Find which fields are empty...
+  const empty = Object.keys(query)
+    .filter( key => !query[key] )
+
+  // ... and delete them from query
+  empty.forEach( key => {
+    delete query[key]
+  })
+
+  // Check if query has any values, and disable the button if not
+  const disabled = !Object.keys(query).length
+  const action = disabled ? "setAttribute" :  "removeAttribute"
+  button[action]("disabled", "")
+}
+
+
 const method = form.getAttribute("method")
 const url = form.getAttribute("action")
 const headers = {
@@ -109,21 +140,9 @@ const headers = {
 
 form.onsubmit = event => {
   event.preventDefault()
-  const formData = new FormData(form)
-  const dataObject = Object.fromEntries(formData)
+
+  const body = JSON.stringify({ query })
   
-  const reducer = (key, value) => value ? value : undefined
-
-  const body = JSON.stringify(
-    dataObject, reducer, ""
-  )
-
-  console.log("body:", body);
-  if (!Object.keys.length) {
-    return
-  }
-  
-
   const options = {
     headers,
     method,
@@ -131,23 +150,29 @@ form.onsubmit = event => {
   }
 
   fetch(url, options)
-    .then(response => response.json())
-    .then(showSelectedImages)
+    .then(response => {
+      response.json()
+        .then(json => [ response.status, json ])
+        .then(treatResponse)
+        .catch(error => console.log("error:", error))
+    })
     .catch(error => console.log("error:", error))
 }
 
-function showSelectedImages(images) {
-  console.log("fetch response:", images)
+function treatResponse([status, response]) {
+  if (status !== 200) {
+    div.textContent = response.fail
+    return 
+  }
   const nameRegex = /\/([^/.]+)\.\w+$/
 
-  const div = document.getElementsByTagName("div")[0]
   // Empty the div
   while (div.firstChild) {
       div.removeChild(div.firstChild);
   }
 
   // Refill it with the selected images
-  images.forEach(addImageToDiv)
+  response.forEach(addImageToDiv)
 
   function addImageToDiv(src) {
     const img = document.createElement("img")
