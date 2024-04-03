@@ -44,9 +44,17 @@
         justify-content: end;
         margin-bottom: 0;
       }
+      form:invalid button {
+        pointer-events: none;
+        opacity: 0.25;
+        cursor: default;
+      }
       img {
         width: 128px;
         height: 128px;
+      }
+      div {
+        display: flex;
       }
     </style>
   </head>
@@ -83,6 +91,7 @@
         type="file"
         name="images"
         required
+        multiple
       />
     </label>
     <label
@@ -96,14 +105,16 @@
     </label>
   </form>
 
-  <img>
+  <div>
 
 <script>
 ;(function () {
 "use strict"
 const form = document.getElementsByTagName("form")[0]
+const div = document.getElementsByTagName("div")[0]
 const method = form.getAttribute("method")
 const url = form.getAttribute("action")
+const nameRegex = /([^/.]+).\w+$/
 
 form.onsubmit = event => {
   event.preventDefault()
@@ -117,14 +128,34 @@ form.onsubmit = event => {
 
   fetch(url, options)
     .then(response => response.json())
-    .then(showUploadedImage)
+    .then(showUploadedImages)
     .catch(error => console.log("error:", error))
   }
 
-  function showUploadedImage(json) {
+  function showUploadedImages(json) {
     console.log("fetch response:", json)
-    const img = document.getElementsByTagName("img")[0]
-    img.src = json.src
+
+    // Empty the div
+    while (div.firstChild) {
+        div.removeChild(div.firstChild);
+    }
+
+    json.forEach( src => {
+      if (typeof src === "string") {
+        const img = document.createElement("img")
+        const match = nameRegex.exec(src)
+        const name = match ? match[1] : src
+        img.setAttribute("alt", name)
+        img.setAttribute("title", name)
+        img.src = src
+        div.append(img)
+
+      } else if (src instanceof Object) {
+        const s = document.createElement("s")
+        s.textContent = src.error
+        div.append(s)
+      }
+    })
   }
 })()
 </script>

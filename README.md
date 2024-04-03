@@ -1,7 +1,7 @@
 
 # Upload Images #
 
-[Link to Full Tutorial](https://merncraft.github.io/upload-images)
+<!-- [Link to Full Tutorial](https://merncraft.github.io/upload-images) -->
 
 Many sites allow their visitors to upload images to the server. These images can then be used on custom pages. For example:
 * The user's avatar
