@@ -1,7 +1,6 @@
 /**
  * app.js
  */
-
 require('dotenv').config()
 require('./database')
 const { PUBLIC } = require('./middleware')

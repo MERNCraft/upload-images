@@ -98,4 +98,6 @@ const fields = [
 const readFields = upload.fields(fields)
 
 
-module.exports = readFields
+module.exports = {
+  readFields
+}

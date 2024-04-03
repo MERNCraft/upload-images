@@ -15,4 +15,6 @@ const schema = new Schema({
 
 const Image = model("Image", schema);
 
-module.exports = Image
+module.exports = {
+  Image
+}

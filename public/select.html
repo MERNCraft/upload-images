@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <title>Upload</title>
+
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background-color: #222;
+        color: #ddd;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+      }
+      form {
+        position: relative;
+        padding: 1em;
+        background-color: #333;
+        border-radius: 1em;
+      }
+      label,
+      span,
+      img {
+        display: block;
+        margin-top: 1em;
+      }
+      label {
+        margin-bottom: 1em;
+      }
+      input {
+        display: inline-block;
+        width: 100%;
+      }
+      .button {
+        display: flex;
+        justify-content: end;
+        margin-bottom: 0;
+      }
+      img {
+        width: 128px;
+        height: 128px;
+      }
+    </style>
+  </head>
+<body>
+  <h1>Search by:</h1>
+  <form
+    action="/select"
+    method="post"
+  >
+    <label for="user">
+      <span>User:</span>
+      <input
+        id="user"
+        name="user"
+        type="text"
+        placeholder="user"
+      />
+    </label>
+    <label for="room">
+      <span>Room:</span>
+      <input
+        id="room"
+        name="room"
+        type="text"
+        placeholder="room"
+      />
+    </label>
+    <label for="name">
+      <span>Image Name:</span>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        placeholder="name"
+      />
+    </label>
+    <label
+      class="button"
+    >
+      <button
+        type="submit"
+      >
+        Show Images
+      </button>
+    </label>
+  </form>
+
+  <div>
+
+<script>
+;(function () {
+"use strict"
+const form = document.getElementsByTagName("form")[0]
+const method = form.getAttribute("method")
+const url = form.getAttribute("action")
+const headers = {
+  "Content-Type": "application/json"
+}
+
+
+form.onsubmit = event => {
+  event.preventDefault()
+  const formData = new FormData(form)
+  const dataObject = Object.fromEntries(formData)
+  
+  const reducer = (key, value) => value ? value : undefined
+
+  const body = JSON.stringify(
+    dataObject, reducer, ""
+  )
+
+  console.log("body:", body);
+  if (!Object.keys.length) {
+    return
+  }
+  
+
+  const options = {
+    headers,
+    method,
+    body,
+  }
+
+  fetch(url, options)
+    .then(response => response.json())
+    .then(showSelectedImages)
+    .catch(error => console.log("error:", error))
+}
+
+function showSelectedImages(images) {
+  console.log("fetch response:", images)
+  const nameRegex = /\/([^/.]+)\.\w+$/
+
+  const div = document.getElementsByTagName("div")[0]
+  // Empty the div
+  while (div.firstChild) {
+      div.removeChild(div.firstChild);
+  }
+
+  // Refill it with the selected images
+  images.forEach(addImageToDiv)
+
+  function addImageToDiv(src) {
+    const img = document.createElement("img")
+    img.setAttribute("src", src)
+    const match = nameRegex.exec(src)
+    const name = match ? match[1] : ""
+    if (name) {
+      img.setAttribute("title", name)
+      img.setAttribute("alt", name)
+    }
+
+    div.append(img)
+  }
+}
+})()
+</script>
+</body>
+</html>

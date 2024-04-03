@@ -2,7 +2,6 @@
  * database/index.js
  */
 
-
 const DB = process.env.DB
 
 const mongoose = require('mongoose')
@@ -21,10 +20,10 @@ mongoose
   })
 
 
-  const db = {
-    mongoose,
-    Image
-  }
+const db = {
+  mongoose,
+  Image
+}
 
 
-  module.exports = db
+module.exports = db
